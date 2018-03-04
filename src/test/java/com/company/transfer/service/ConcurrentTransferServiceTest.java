@@ -1,24 +1,21 @@
 package com.company.transfer.service;
 
-import static com.company.transfer.testutils.AmountConstants.AMOUNT_10;
-import static com.company.transfer.testutils.AmountConstants.AMOUNT_100;
-import static com.company.transfer.testutils.AmountConstants.AMOUNT_1000;
-import static com.company.transfer.testutils.AmountConstants.AMOUNT_50;
-import static org.junit.Assert.assertEquals;
-
-import java.math.BigDecimal;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.company.transfer.domain.Account;
 import com.company.transfer.domain.Transfer;
 import com.company.transfer.repositories.IAccountRepository;
 import com.company.transfer.repositories.ITransferRepository;
 import com.company.transfer.repositories.impl.AccountMockRepository;
 import com.company.transfer.repositories.impl.TransferMockRepository;
+import static com.company.transfer.testutils.AmountConstants.AMOUNT_10;
+import static com.company.transfer.testutils.AmountConstants.AMOUNT_100;
+import static com.company.transfer.testutils.AmountConstants.AMOUNT_1000;
+import static com.company.transfer.testutils.AmountConstants.AMOUNT_50;
+import java.math.BigDecimal;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -75,9 +72,9 @@ public class ConcurrentTransferServiceTest {
 		long expectedAccountQuantity = accounts[0].length + accounts[1].length + accounts[2].length;
 
 		EntityCreator<?>[] accCreators = {
-			new EntityCreator<Account>(Stream.of(accounts[0]), this::helperFnCreateAccount),
-			new EntityCreator<Account>(Stream.of(accounts[1]), this::helperFnCreateAccount),
-			new EntityCreator<Account>(Stream.of(accounts[2]), this::helperFnCreateAccount),
+			new EntityCreator<Account>(accounts[0], this::helperFnCreateAccount),
+			new EntityCreator<Account>(accounts[1], this::helperFnCreateAccount),
+			new EntityCreator<Account>(accounts[2], this::helperFnCreateAccount),
 		};
 
 		// no account was created so far
@@ -107,44 +104,44 @@ public class ConcurrentTransferServiceTest {
 	
 	@Test
 	public void testConcurrentTransfers() throws InterruptedException {
-		this.transferService.createNewAccount("A", AMOUNT_1000);
-		this.transferService.createNewAccount("B", AMOUNT_1000);
-		this.transferService.createNewAccount("C", AMOUNT_1000);
+		Account accountA = this.transferService.createNewAccount("A", AMOUNT_1000);
+		Account accountB = this.transferService.createNewAccount("B", AMOUNT_1000);
+		Account accountC = this.transferService.createNewAccount("C", AMOUNT_1000);
 		
 		Transfer[][] transfers = {
 			new Transfer[] {
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
-					new Transfer(1, 2, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
+					new Transfer(accountA, accountB, AMOUNT_100),
 			},
 			
 			new Transfer[] {
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
-					new Transfer(3, 1, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
+					new Transfer(accountC, accountA, AMOUNT_10),
 			},
 			
 			new Transfer[] {
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
-					new Transfer(2, 3, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
+					new Transfer(accountB, accountC, AMOUNT_50),
 			},
 		};
 		
@@ -161,9 +158,9 @@ public class ConcurrentTransferServiceTest {
 		BigDecimal expectedBalanceAccountC = AMOUNT_1000.subtract(transferAmount01).add(transferAmount02);
 
 		EntityCreator<?>[] transferCreators = {
-			new EntityCreator<Transfer>(Stream.of(transfers[0]), this::helperFnCreateTransfer),
-			new EntityCreator<Transfer>(Stream.of(transfers[1]), this::helperFnCreateTransfer),
-			new EntityCreator<Transfer>(Stream.of(transfers[2]), this::helperFnCreateTransfer)
+			new EntityCreator<Transfer>(transfers[0], this::helperFnCreateTransfer),
+			new EntityCreator<Transfer>(transfers[1], this::helperFnCreateTransfer),
+			new EntityCreator<Transfer>(transfers[2], this::helperFnCreateTransfer)
 		};
 
 		// no transfer was created so far
@@ -191,7 +188,7 @@ public class ConcurrentTransferServiceTest {
 	}
 	
 	private void helperFnCreateTransfer(Transfer t) {
-		this.transferService.transfer(t.getSourceAccountId(), t.getDestinationAccountId(), t.getAmount());
+		this.transferService.transfer(t.getSourceAccount().getId(), t.getDestinationAccount().getId(), t.getAmount());
 	}
 }
 
@@ -204,12 +201,12 @@ public class ConcurrentTransferServiceTest {
  * @param <T> The target entity that will be created
  */
 class EntityCreator <T extends Object> implements Runnable {
-	private Stream<T> entities;
+	private T[] entities;
 	private Thread thread;
 	private boolean isRunning;
 	private Consumer<T> fnCreate;
 	
-	public EntityCreator(Stream<T> entities, Consumer<T> fnCreate) {
+	public EntityCreator(T[] entities, Consumer<T> fnCreate) {
 		super();
 		this.entities = entities;
 		this.fnCreate = fnCreate;
@@ -228,7 +225,7 @@ class EntityCreator <T extends Object> implements Runnable {
 		this.isRunning = true;
 		
 		// using parallel stream
-		this.entities.parallel().forEach(this.fnCreate::accept);
+		Stream.of(this.entities).parallel().forEach(this.fnCreate::accept);
 		
 		this.isRunning = false;
 	}
